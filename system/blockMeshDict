@@ -1,0 +1,172 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1.0;
+
+vertices
+(
+    // z = 0 plane
+    (0.00   0.000   0.00) // 0
+    (1.00   0.000   0.00) // 1
+    (1.15   0.000   0.00) // 2
+    (8.00   0.000   0.00) // 3
+    (0.00   0.075   0.00) // 4
+    (1.00   0.075   0.00) // 5
+    (1.15   0.075   0.00) // 6
+    (8.00   0.075   0.00) // 7
+    (0.00   0.100   0.00) // 8
+    (1.00   0.100   0.00) // 9
+    (1.15   0.100   0.00) // 10
+    (8.00   0.100   0.00) // 11
+
+    // z = 0.01 plane
+    (0.00   0.000   0.01) // 12
+    (1.00   0.000   0.01) // 13
+    (1.15   0.000   0.01) // 14
+    (8.00   0.000   0.01) // 15
+    (0.00   0.075   0.01) // 16
+    (1.00   0.075   0.01) // 17
+    (1.15   0.075   0.01) // 18
+    (8.00   0.075   0.01) // 19
+    (0.00   0.100   0.01) // 20
+    (1.00   0.100   0.01) // 21
+    (1.15   0.100   0.01) // 22
+    (8.00   0.100   0.01) // 23
+);
+
+blocks
+(
+    // Block 1: Upstream-lower (0 to 1.0 m, 0 to 0.075 m)
+    // 120 x-cells with bi-grading, 60 y-cells with grading 20 toward bed
+    hex (0 1 5 4 12 13 17 16) (120 60 1) simpleGrading
+    (
+        ((0.5 0.5 8) (0.5 0.5 0.125)) // x-grading: finer toward x = 1.0
+        ((1.0 1.0 20))                 // y-grading: finer toward y = 0 (bed)
+        1.0
+    )
+
+    // Block 2: Throat (1.0 to 1.15 m, 0 to 0.075 m)
+    // 45 x-cells (uniform), 60 y-cells with grading 20 toward bed
+    hex (1 2 6 5 13 14 18 17) (45 60 1) simpleGrading
+    (
+        1.0                            // uniform x
+        ((1.0 1.0 20))                 // y-grading: finer toward y = 0 (bed)
+        1.0
+    )
+
+    // Block 3: Downstream-lower (1.15 to 8.0 m, 0 to 0.075 m)
+    // 800 x-cells with stronger leading-edge grading, 60 y-cells with grading 20
+    hex (2 3 7 6 14 15 19 18) (800 60 1) simpleGrading
+    (
+        ((0.15 0.5 0.0625) (0.85 0.5 16)) // x-grading: much finer near x = 1.15
+        ((1.0 1.0 20))                     // y-grading: finer toward y = 0 (bed)
+        1.0
+    )
+
+    // Block 4: Upstream-upper (0 to 1.0 m, 0.075 to 0.10 m)
+    // 120 x-cells, 15 y-cells with grading toward y = 0.075
+    hex (4 5 9 8 16 17 21 20) (120 15 1) simpleGrading
+    (
+        ((0.5 0.5 8) (0.5 0.5 0.125)) // x-grading: finer toward x = 1.0
+        ((1.0 1.0 0.25))              // y-grading: finer toward y = 0.075
+        1.0
+    )
+
+    // Block 5: Downstream-upper (1.15 to 8.0 m, 0.075 to 0.10 m)
+    // 800 x-cells, 15 y-cells with grading toward y = 0.075
+    hex (6 7 11 10 18 19 23 22) (800 15 1) simpleGrading
+    (
+        ((0.15 0.5 0.0625) (0.85 0.5 16)) // x-grading: finer near x = 1.15
+        ((1.0 1.0 0.25))                  // y-grading: finer toward y = 0.075
+        1.0
+    )
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 12 16 4) // Block 1 inlet
+            (4 16 20 8) // Block 4 inlet
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (3 7 19 15) // Block 3 outlet
+            (7 11 23 19) // Block 5 outlet
+        );
+    }
+    bed
+    {
+        type wall;
+        faces
+        (
+            (0 1 13 12) // Block 1 bottom
+            (1 2 14 13) // Block 2 bottom
+            (2 3 15 14) // Block 3 bottom
+        );
+    }
+    top
+    {
+        type wall;
+        faces
+        (
+            (8 20 21 9) // Block 4 top
+            (10 22 23 11) // Block 5 top
+        );
+    }
+    bridge
+    {
+        type wall;
+        faces
+        (
+            (5 6 18 17)   // Block 2 top (bridge bottom / soffit)
+            (5 17 21 9)   // Block 4 right (bridge upstream face)
+            (6 10 22 18)  // Block 5 left (bridge downstream face)
+        );
+    }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            // Back faces (z = 0)
+            (0 4 5 1)
+            (1 5 6 2)
+            (2 6 7 3)
+            (4 8 9 5)
+            (6 10 11 7)
+            // Front faces (z = 0.01)
+            (12 16 17 13)
+            (13 17 18 14)
+            (14 18 19 15)
+            (16 20 21 17)
+            (18 22 23 19)
+        );
+    }
+);
+
+// ************************************************************************* //

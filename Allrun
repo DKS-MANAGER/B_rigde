@@ -1,0 +1,31 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+
+# Clean previous files
+if [ -f "./Allclean" ]; then
+    ./Allclean
+fi
+
+# 1. Generate multi-block structured mesh
+echo "Generating polyMesh..."
+blockMesh > log.blockMesh 2>&1
+
+# 2. Generate finite-area mesh for bedload dynamics
+echo "Generating faMesh..."
+makeFaMesh > log.makeFaMesh 2>&1
+
+# 3. Check mesh quality
+echo "Checking mesh quality..."
+checkMesh > log.checkMesh 2>&1
+
+# 4. Decompose for parallel run (4 P-cores)
+echo "Decomposing for 4 P-cores..."
+decomposePar > log.decomposePar 2>&1
+
+# 5. Execute solver in parallel
+echo "Launching sedExnerFoam on 4 cores..."
+mpirun -np 4 sedExnerFoam -parallel > log.sedExnerFoam 2>&1 &
+
+echo "Solver started on 4 cores. Monitor progress with: tail -f log.sedExnerFoam"
+
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

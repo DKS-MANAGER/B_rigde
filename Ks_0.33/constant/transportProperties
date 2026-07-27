@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Root-level properties for sedExnerFoam
+rhoS            rhoS [1 -3 0 0 0 0 0] 2650;
+dS              dS [0 1 0 0 0 0 0] 0.00068; // 0.68 mm sand
+CsMax           CsMax [0 0 0 0 0 0 0] 0.635;
+transportModel  Newtonian;
+nu              nu [0 2 -1 0 0 0 0] 1e-6;
+Sc              1.0;
+
+// Also define standard phase parameters for solver components
+phases          (phasea phaseb);
+
+phasea // Sediment phase (disperse)
+{
+    rho             rho [1 -3 0 0 0 0 0] 2650;
+    nu              nu [0 2 -1 0 0 0 0] 1e-6;
+    d               d [0 1 0 0 0 0 0] 0.00068;
+    sF              sF [0 0 0 0 0 0 0] 1.0;
+}
+
+phaseb // Fluid phase (water)
+{
+    rho             rho [1 -3 0 0 0 0 0] 1000;
+    nu              nu [0 2 -1 0 0 0 0] 1e-6;
+}
+
+// ************************************************************************* //

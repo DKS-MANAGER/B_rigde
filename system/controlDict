@@ -1,0 +1,117 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     sedExnerFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         40;
+
+deltaT          0.001;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       0.01;
+
+writeControl    runTime;
+
+writeInterval   5;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+    fieldAverage1
+    {
+        type            fieldAverage;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+        timeStart       25; // start averaging after ~1 flow-through settled
+        fields
+        (
+            Ub
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+            p_rbgh
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+        );
+    }
+
+    wallShearStress1
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        patches         (bed);
+        writeControl    writeTime;
+    }
+
+    // Near-bed sampling line for streamwise tau_b(x) profile extraction
+    sampleBedLine
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    writeTime;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        sets
+        (
+            bedCenterline
+            {
+                type        uniform;
+                axis        x;
+                start       (0.0 0.001 0.005);
+                end         (8.0 0.001 0.005);
+                nPoints     2000;
+            }
+        );
+        fields  (Ub UbMean p_rbgh p_rbghMean);
+    }
+
+    // Friction velocity and y+ monitoring
+    yPlus1
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+    }
+}
+
+// ************************************************************************* //

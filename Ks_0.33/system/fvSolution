@@ -1,0 +1,122 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(p_rbgh|p)"
+    {
+        solver          GAMG;
+        tolerance       1e-7;
+        relTol          0.01;
+        smoother        GaussSeidel;
+    }
+
+    "(p_rbgh|p)Final"
+    {
+        solver          GAMG;
+        tolerance       1e-8;
+        relTol          0.0;
+        smoother        GaussSeidel;
+    }
+
+    "(Ua|Ub|U)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-7;
+        relTol          0.01;
+    }
+
+    "(Ua|Ub|U)Final"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0.0;
+    }
+
+    "(alpha|Cs)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-9;
+        relTol          0.0;
+    }
+
+    "(alpha|Cs)Final"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-9;
+        relTol          0.0;
+    }
+
+    "(k.b|omega.b|k|omega|Theta)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-7;
+        relTol          0.1;
+    }
+
+    "(k.b|omega.b|k|omega|Theta)Final"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0.0;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors 4;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 1;
+
+    residualControl
+    {
+        "(Ub|U)"
+        {
+            relTol          0;
+            tolerance       1e-5;
+        }
+        "(p_rbgh|p)"
+        {
+            relTol          0;
+            tolerance       1e-4;
+        }
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        Ub              0.7;
+        Ua              0.7;
+        U               0.7;
+        p               0.3;
+        p_rbgh          0.3;
+        k.b             0.7;
+        omega.b         0.7;
+        k               0.7;
+        omega           0.7;
+        Cs              0.7;
+    }
+}
+
+// ************************************************************************* //

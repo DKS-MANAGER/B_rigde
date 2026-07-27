@@ -1,0 +1,20 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Source tutorial clean functions
+
+echo "Cleaning case directories and logs..."
+
+# Clean standard time directories and variables
+cleanTimeDirectories
+rm -rf processor*
+rm -rf dynamicCode
+rm -rf constant/polyMesh
+rm -rf constant/finite-area
+rm -rf postProcessing*
+rm -f log.*
+rm -f log
+rm -f foam.foam
+
+echo "Clean complete."
+
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
