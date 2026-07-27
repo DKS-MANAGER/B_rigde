@@ -88,9 +88,9 @@ The table compares simulated bed shear stresses ($\tau_b$) at the bed face with 
 
 | Bed Roughness ($K_s$) | CFD Approach Flow | CFD Contraction Peak | Experiment Approach | Experiment Peak |
 | :--- | :---: | :---: | :---: | :---: |
-| **Grade I ($0.33\text{ mm}$)** | **0.170 Pa** | **0.728 Pa** | 0.144 Pa | 0.461 Pa |
-| **Grade II ($0.68\text{ mm}$)** | **0.170 Pa** | **0.728 Pa** | 0.225 Pa | 0.607 Pa |
-| **Grade III ($1.90\text{ mm}$)** | **0.202 Pa** | **0.728 Pa** | 0.289 Pa | 0.636 Pa |
+| **Grade I ($0.33\text{ mm}$)** | **0.091 Pa** | **0.922 Pa** | 0.144 Pa | 0.461 Pa |
+| **Grade II ($0.68\text{ mm}$)** | **0.091 Pa** | **0.971 Pa** | 0.225 Pa | 0.607 Pa |
+| **Grade III ($1.90\text{ mm}$)** | **0.091 Pa** | **0.922 Pa** | 0.289 Pa | 0.636 Pa |
 
 *The comparison graph is updated and saved inside the root directory as `bed_shear_stress_comparison.png`.*
 
