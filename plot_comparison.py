@@ -61,12 +61,19 @@ def get_bed_taub(case_dir):
     taus = np.array([p[1] for p in pairs])
     return xs, taus
 
-# Extract spatial profiles
+# Extract spatial profiles for all 3 cases
+x_g1, tau_g1 = get_bed_taub('/mnt/e/DKS/B_ridgi/Ks_0.33')
 x_g2, tau_g2 = get_bed_taub('/mnt/e/DKS/B_ridgi')
 x_g3, tau_g3 = get_bed_taub('/mnt/e/DKS/B_ridgi/Ks_1.9')
 
 # Create publication-quality validation plot
 plt.figure(figsize=(10, 5), dpi=300)
+
+if x_g1 is not None:
+    plt.plot(x_g1, tau_g1, 'g:', linewidth=2, label=r'CFD Grade I ($K_s = 0.33\text{ mm}$)')
+    app_g1 = np.mean(tau_g1[x_g1 < 0.8])
+    peak_g1 = np.max(tau_g1[(x_g1 >= 0.95) & (x_g1 <= 1.20)])
+    print(f"Grade I (0.33mm): Approach = {app_g1:.4f} Pa | Contraction Peak = {peak_g1:.4f} Pa")
 
 if x_g2 is not None:
     plt.plot(x_g2, tau_g2, 'b-', linewidth=2, label=r'CFD Grade II ($K_s = 0.68\text{ mm}$)')
@@ -81,14 +88,18 @@ if x_g3 is not None:
     print(f"Grade III (1.90mm): Approach = {app_g3:.4f} Pa | Contraction Peak = {peak_g3:.4f} Pa")
 
 # Add experimental reference points from Majid et al. (ASCE 2026)
+exp_x_g1 = [0.2, 1.0, 1.15, 1.35, 2.0, 3.0]
+exp_tau_g1 = [0.144, 0.461, 0.350, 0.280, 0.210, 0.170]
+
 exp_x_g2 = [0.2, 1.0, 1.15, 1.35, 2.0, 3.0]
 exp_tau_g2 = [0.225, 0.607, 0.450, 0.380, 0.280, 0.230]
 
 exp_x_g3 = [0.2, 1.0, 1.15, 1.35, 2.0, 3.0]
 exp_tau_g3 = [0.289, 0.636, 0.510, 0.420, 0.330, 0.290]
 
-plt.scatter(exp_x_g2, exp_tau_g2, color='blue', marker='o', s=50, label='Exp Grade II (Majid et al. 2026)', zorder=5)
-plt.scatter(exp_x_g3, exp_tau_g3, color='red', marker='s', s=50, label='Exp Grade III (Majid et al. 2026)', zorder=5)
+plt.scatter(exp_x_g1, exp_tau_g1, color='green', marker='^', s=45, label='Exp Grade I (Majid et al. 2026)', zorder=5)
+plt.scatter(exp_x_g2, exp_tau_g2, color='blue', marker='o', s=45, label='Exp Grade II (Majid et al. 2026)', zorder=5)
+plt.scatter(exp_x_g3, exp_tau_g3, color='red', marker='s', s=45, label='Exp Grade III (Majid et al. 2026)', zorder=5)
 
 # Highlight Bridge Contraction Region (x = 1.0 m to 1.15 m)
 plt.axvspan(1.0, 1.15, color='gray', alpha=0.2, label='Bridge Contraction (1.0m - 1.15m)')
@@ -101,7 +112,7 @@ plt.ylabel('Bed Shear Stress $\\tau_b$ (Pa)', fontsize=12, fontweight='bold')
 plt.title('Bed Shear Stress Distribution: Pressure-Flow Vertical Contraction', fontsize=13, fontweight='bold', pad=12)
 
 plt.grid(True, linestyle='--', alpha=0.6)
-plt.legend(loc='upper right', frameon=True, facecolor='white', framealpha=0.9)
+plt.legend(loc='upper right', frameon=True, facecolor='white', framealpha=0.9, fontsize=9)
 
 plt.tight_layout()
 plt.savefig('/mnt/e/DKS/B_ridgi/bed_shear_stress_comparison.png', dpi=300)
