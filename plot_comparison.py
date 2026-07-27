@@ -1,76 +1,84 @@
 import os
-import glob
 import re
 import matplotlib.pyplot as plt
 import numpy as np
 
-def extract_taub_profile(case_dir):
-    # Find latest reconstructed time directory with wallShearStress
+def get_bed_taub(case_dir):
+    points_file = os.path.join(case_dir, 'constant/polyMesh/points')
+    faces_file = os.path.join(case_dir, 'constant/polyMesh/faces')
+    boundary_file = os.path.join(case_dir, 'constant/polyMesh/boundary')
+    
+    if not os.path.exists(points_file):
+        return None, None
+        
+    with open(points_file, 'r') as f:
+        pts_text = re.findall(r'\((-?\d+\.?\d*e?-?\d*)\s+(-?\d+\.?\d*e?-?\d*)\s+(-?\d+\.?\d*e?-?\d*)\)', f.read())
+    pts = [(float(p[0]), float(p[1]), float(p[2])) for p in pts_text]
+    
+    with open(boundary_file, 'r') as f:
+        bnd_content = f.read()
+    bed_bnd = re.search(r'bed\s*\{[^}]*nFaces\s+(\d+)\s*;[^}]*startFace\s+(\d+)\s*;', bnd_content)
+    n_faces = int(bed_bnd.group(1))
+    start_face = int(bed_bnd.group(2))
+    
+    with open(faces_file, 'r') as f:
+        faces_text = re.findall(r'\d+\((.*?)\)', f.read())
+    
+    bed_x = []
+    for i in range(start_face, start_face + n_faces):
+        f_pt_indices = [int(idx) for idx in faces_text[i].split()]
+        f_x = sum([pts[idx][0] for idx in f_pt_indices]) / len(f_pt_indices)
+        bed_x.append(f_x)
+        
     time_dirs = []
     for entry in os.listdir(case_dir):
         path = os.path.join(case_dir, entry)
         if os.path.isdir(path):
             try:
                 t = float(entry)
-                if t > 0 and os.path.exists(os.path.join(path, "wallShearStress")):
+                if t > 0 and os.path.exists(os.path.join(path, 'wallShearStress')):
                     time_dirs.append((t, entry))
             except ValueError:
                 pass
     if not time_dirs:
         return None, None
-    time_dirs.sort(key=lambda x: x[0])
+        
+    time_dirs.sort(key=lambda item: item[0])
     latest_entry = time_dirs[-1][1]
     
-    # Read mesh points/faces or cell centers for bed patch
-    # Or extract wallShearStress values on bed patch
-    wss_file = os.path.join(case_dir, latest_entry, "wallShearStress")
-    with open(wss_file, "r") as f:
+    with open(os.path.join(case_dir, latest_entry, 'wallShearStress'), 'r') as f:
         content = f.read()
-    
     bed_match = re.search(r'bed\s*\{[^}]*field\s+nonuniform\s+List<vector>\s*\d+\s*\((.*?)\)\s*;', content, re.DOTALL)
     if not bed_match:
         bed_match = re.search(r'bed\s*\{.*?\((.*?)\)\s*;', content, re.DOTALL)
-    
-    if not bed_match:
-        return None, None
-    
     vec_text = bed_match.group(1)
     vectors = re.findall(r'\((-?\d+\.?\d*e?-?\d*)\s+(-?\d+\.?\d*e?-?\d*)\s+(-?\d+\.?\d*e?-?\d*)\)', vec_text)
-    
     tau_vals = [abs(float(v[0])) * 1000.0 for v in vectors]
     
-    # Generate x positions along the 8.0 m domain for the bed faces
-    # Total bed faces = 120 (upstream) + 45 (throat) + 800 (downstream) = 965 faces
-    # x ranges from 0 to 8.0 m
-    # Let's construct exact face center x-coordinates matching blockMesh grading
-    x_up = np.linspace(0, 1.0, 120)
-    x_throat = np.linspace(1.0, 1.15, 45)
-    x_down = np.linspace(1.15, 8.0, len(tau_vals) - 165 if len(tau_vals) > 165 else 800)
-    x_coords = np.concatenate([x_up, x_throat, x_down])
-    
-    if len(x_coords) != len(tau_vals):
-        x_coords = np.linspace(0, 8.0, len(tau_vals))
-        
-    return x_coords, np.array(tau_vals)
+    # Pair and sort by x-coordinate
+    pairs = sorted(zip(bed_x, tau_vals), key=lambda item: item[0])
+    xs = np.array([p[0] for p in pairs])
+    taus = np.array([p[1] for p in pairs])
+    return xs, taus
 
-# Extract profiles
-x_g2, tau_g2 = extract_taub_profile("/mnt/e/DKS/B_ridgi")
-x_g3, tau_g3 = extract_taub_profile("/mnt/e/DKS/B_ridgi/Ks_1.9")
+# Extract spatial profiles
+x_g2, tau_g2 = get_bed_taub('/mnt/e/DKS/B_ridgi')
+x_g3, tau_g3 = get_bed_taub('/mnt/e/DKS/B_ridgi/Ks_1.9')
 
 # Create publication-quality validation plot
 plt.figure(figsize=(10, 5), dpi=300)
 
 if x_g2 is not None:
     plt.plot(x_g2, tau_g2, 'b-', linewidth=2, label=r'CFD Grade II ($K_s = 0.68\text{ mm}$)')
-    peak_g2 = np.max(tau_g2)
-    app_g2 = tau_g2[0]
-    print(f"Grade II: Approach = {app_g2:.3f} Pa, Peak = {peak_g2:.3f} Pa")
+    app_g2 = np.mean(tau_g2[x_g2 < 0.8])
+    peak_g2 = np.max(tau_g2[(x_g2 >= 0.95) & (x_g2 <= 1.20)])
+    print(f"Grade II (0.68mm): Approach = {app_g2:.4f} Pa | Contraction Peak = {peak_g2:.4f} Pa")
 
 if x_g3 is not None:
     plt.plot(x_g3, tau_g3, 'r--', linewidth=2, label=r'CFD Grade III ($K_s = 1.90\text{ mm}$)')
-    peak_g3 = np.max(tau_g3)
-    app_g3 = tau_g3[0]
-    print(f"Grade III: Approach = {app_g3:.3f} Pa, Peak = {peak_g3:.3f} Pa")
+    app_g3 = np.mean(tau_g3[x_g3 < 0.8])
+    peak_g3 = np.max(tau_g3[(x_g3 >= 0.95) & (x_g3 <= 1.20)])
+    print(f"Grade III (1.90mm): Approach = {app_g3:.4f} Pa | Contraction Peak = {peak_g3:.4f} Pa")
 
 # Add experimental reference points from Majid et al. (ASCE 2026)
 exp_x_g2 = [0.2, 1.0, 1.15, 1.35, 2.0, 3.0]
