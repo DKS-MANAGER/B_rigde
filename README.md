@@ -89,10 +89,10 @@ The table compares simulated bed shear stresses ($\tau_b$) at the bed face with 
 | Bed Roughness ($K_s$) | CFD Approach Flow | CFD Contraction Peak | Experiment Approach | Experiment Peak |
 | :--- | :---: | :---: | :---: | :---: |
 | **Grade I ($0.33\text{ mm}$)** | **0.144 Pa** | **0.937 Pa** | 0.144 Pa | 0.461 Pa |
-| **Grade II ($0.68\text{ mm}$)** | **0.188 Pa** | **0.937 Pa** | 0.225 Pa | 0.607 Pa |
-| **Grade III ($1.90\text{ mm}$)** | **0.282 Pa** | **1.543 Pa** | 0.289 Pa | 0.636 Pa |
+| **Grade II ($0.68\text{ mm}$)** | **0.825 Pa** | **0.825 Pa** | 0.225 Pa | 0.607 Pa |
+| **Grade III ($1.90\text{ mm}$)** | **3.519 Pa** | **3.519 Pa** | 0.289 Pa | 0.636 Pa |
 
-*The comparison graph is plotted and saved inside the root directory as `bed_shear_stress_comparison.png`.*
+*The comparison graph is updated and saved inside the root directory as `bed_shear_stress_comparison.png`.*
 
 ### 4.2 Key Physical Insights & Discrepancies
 1.  **Direct Skin Friction vs. PIV Extrapolation (The Peak Difference):**
