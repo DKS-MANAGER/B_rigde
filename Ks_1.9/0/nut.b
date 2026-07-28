@@ -35,7 +35,7 @@ boundaryField
     bed
     {
         type            nutkRoughWallFunction;
-        Ks              uniform 0.00068; // Grade II sand
+        Ks              uniform 0.0019; // Grade III sand
         Cs              uniform 0.5;
         value           uniform 0.0;
     }

@@ -19,24 +19,34 @@ solvers
     "(p_rbgh|p)"
     {
         solver          GAMG;
-        tolerance       1e-7;
-        relTol          0.01;
+        tolerance       1e-6;
+        relTol          0.05;
         smoother        GaussSeidel;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        cacheAgglomeration true;
+        agglomerator    faceAreaPair;
+        nCellsInCoarsestLevel 10;
     }
 
     "(p_rbgh|p)Final"
     {
         solver          GAMG;
-        tolerance       1e-8;
-        relTol          0.0;
+        tolerance       1e-6;
+        relTol          0.01;
         smoother        GaussSeidel;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        cacheAgglomeration true;
+        agglomerator    faceAreaPair;
+        nCellsInCoarsestLevel 10;
     }
 
     "(Ua|Ub|U)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-7;
+        tolerance       1e-6;
         relTol          0.01;
     }
 
@@ -44,7 +54,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-7;
         relTol          0.0;
     }
 
@@ -52,7 +62,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-9;
+        tolerance       1e-8;
         relTol          0.0;
     }
 
@@ -60,7 +70,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-9;
+        tolerance       1e-8;
         relTol          0.0;
     }
 
@@ -68,24 +78,24 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-7;
-        relTol          0.1;
+        tolerance       1e-6;
+        relTol          0.05;
     }
 
     "(k.b|omega.b|k|omega|Theta)Final"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-7;
         relTol          0.0;
     }
 }
 
 PIMPLE
 {
-    nOuterCorrectors 4;
+    nOuterCorrectors 2;
     nCorrectors     2;
-    nNonOrthogonalCorrectors 1;
+    nNonOrthogonalCorrectors 0; // Pure structured orthogonal mesh
 
     residualControl
     {

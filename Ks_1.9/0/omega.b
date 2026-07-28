@@ -33,7 +33,8 @@ boundaryField
 
     bed
     {
-        type            omegaWallFunction;
+        type            fuhrmanOmegaWallFunction;
+        kn              0.0019;
         value           uniform 4.153;
     }
 

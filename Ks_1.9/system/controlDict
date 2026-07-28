@@ -50,6 +50,8 @@ timePrecision   6;
 
 runTimeModifiable true;
 
+libs ("libroughWallFunctions.so");
+
 functions
 {
     fieldAverage1

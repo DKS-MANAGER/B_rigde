@@ -105,7 +105,7 @@ plt.scatter(exp_x_g3, exp_tau_g3, color='red', marker='s', s=45, label='Exp Grad
 plt.axvspan(1.0, 1.15, color='gray', alpha=0.2, label='Bridge Contraction (1.0m - 1.15m)')
 
 plt.xlim(0, 4.0)
-plt.ylim(0, 1.0)
+plt.ylim(0, 1.8)
 
 plt.xlabel('Streamwise Distance $x$ (m)', fontsize=12, fontweight='bold')
 plt.ylabel('Bed Shear Stress $\\tau_b$ (Pa)', fontsize=12, fontweight='bold')

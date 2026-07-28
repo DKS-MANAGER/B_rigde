@@ -14,8 +14,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// 4 cores per case allows running 2 cases simultaneously on the 8 physical P-cores
-// (~17,925 cells/core for 71,700 cells)
 numberOfSubdomains  4;
 
 method              scotch;

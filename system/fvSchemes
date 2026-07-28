@@ -32,8 +32,8 @@ divSchemes
     div(phib,Ub)    Gauss linearUpwind grad(Ub);
     div(phi,U)      Gauss linearUpwind grad(U);
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
-    div(phi,k)      Gauss linearUpwind grad(k);
-    div(phi,omega)  Gauss linearUpwind grad(omega);
+    div(phi,k)      Gauss upwind;
+    div(phi,omega)  Gauss upwind;
     div(phip,Cs)    Gauss linear;
 }
 
