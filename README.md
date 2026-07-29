@@ -1,6 +1,6 @@
 # CFD Validation Report: Pressure-Flow due to Vertical Bridge Contraction
 
-This repository contains the OpenFOAM (v2412) implementation, grid setup, validation profiles, and post-processing tools designed to reproduce the rigid-bed pressure-flow-due-to-vertical-contraction flume experiments reported by:
+This repository contains the OpenFOAM (v2412) implementation, grid setup, validation profiles, and post-processing tools designed to validate numerical predictions of bed shear stress under pressure-flow vertical contraction against the experimental study:
 
 > **Effect of Bed Roughness on Pressure Flow due to Vertical Contraction**  
 > *Sofi Aamir Majid, S.M.ASCE; Shivam Tripathi; and Debopam Das*  
@@ -9,149 +9,149 @@ This repository contains the OpenFOAM (v2412) implementation, grid setup, valida
 
 ---
 
-## 1. Project Title & Overview
-This project validates the bed shear stress ($\tau_b$) distribution along a flume channel bed subjected to a sudden vertical constriction. Using a customized OpenFOAM hydrodynamic solver (`sedExnerFoam` running in hydrodynamics-only mode), we evaluate three different bed roughness grades ($K_s = 0.33\text{ mm}$, $0.68\text{ mm}$, and $1.90\text{ mm}$). 
+## 1. Project Overview
+This project models the hydrodynamic boundary layer response of a turbulent flow passing through a vertical constriction (bridge model). The primary objective is to evaluate how bed roughness heights impact the streamwise distribution of the bed shear stress ($\tau_b$).
 
-The model resolves the wall shear stress signature, validating the numerical output directly against the PIV experimental measurements from the ASCE 2026 publication.
-
----
-
-## 2. Hydraulic & Physical Parameters
-The numerical setup models a 2D slice of the experimental hydraulic flume. The exact physical and flow properties are detailed below:
-
-| Parameter | Symbol | Value | Unit | Description |
-| :--- | :---: | :---: | :---: | :--- |
-| **Approach Flow Depth** | $H_a$ | $0.10$ | $\text{m}$ | Constant water level upstream |
-| **Channel Width** | $Z_w$ | $0.30$ | $\text{m}$ | Transverse width of the flume |
-| **Channel Bed Slope** | $S_0$ | $0.018$ | $\%$ | Streamwise slope ($0.00018\text{ m/m}$) |
-| **Fluid Density** | $\rho_f$ | $1000$ | $\text{kg/m}^3$ | Density of water at $20^\circ\text{C}$ |
-| **Kinematic Viscosity** | $\nu_f$ | $1.0 \times 10^{-6}$ | $\text{m}^2/\text{s}$ | Viscosity of water |
-| **Bulk Flow Velocity** | $V_a$ | $0.26$ | $\text{m/s}$ | Average approach flow rate velocity |
-| **Grade I Roughness** | $K_{s,1}$ | $0.33$ | $\text{mm}$ | Median diameter $d_{50}$ for Grade I sand |
-| **Grade II Roughness** | $K_{s,2}$ | $0.68$ | $\text{mm}$ | Median diameter $d_{50}$ for Grade II sand |
-| **Grade III Roughness** | $K_{s,3}$ | $1.90$ | $\text{mm}$ | Median diameter $d_{50}$ for Grade III sand |
+The simulations are carried out using the **`sedExnerFoam`** solver (running in hydrodynamics-only mode), which solves the phase-volume averaged Navier-Stokes equations for the mixture. Three separate boundary layer runs are modeled to validate equivalent sand-grain roughness sizes against experimental Particle Image Velocimetry (PIV) data:
+*   **Grade I:** $K_s = 0.33\text{ mm}$
+*   **Grade II:** $K_s = 0.68\text{ mm}$
+*   **Grade III:** $K_s = 1.90\text{ mm}$
 
 ---
 
-## 3. Repository & Directory Map
-The workspace is structured into three self-contained OpenFOAM case folders representing each bed roughness grade:
+## 2. Physical & Hydraulic Parameters
+The exact fluid properties and boundary layer inlet conditions extracted from `constant/transportProperties` and the experimental setup are summarized below:
+
+*   **Fluid Phase Density ($\rho_f$):** $1000\text{ kg/m}^3$
+*   **Kinematic Viscosity ($\nu_f$):** $1.0 \times 10^{-6}\text{ m}^2/\text{s}$
+*   **Approach Flow Depth ($H_a$):** $0.10\text{ m}$
+*   **Channel Width ($Z_w$):** $0.30\text{ m}$
+*   **Channel Bed Slope ($S_0$):** $0.018\%$ (modeled via inflow profiling)
+*   **Inflow boundary profile:** Logarithmic velocity profile with an average bulk velocity $V_b = 0.26\text{ m/s}$ and centerline velocity $U_{\text{max}} = 0.2971\text{ m/s}$, compiled at runtime using standard `codedFixedValue` boundary conditions.
+*   **equivalent Sand-Grain Roughness Heights ($k_N$):**
+    *   Grade I: $k_N = 0.00033\text{ m}$
+    *   Grade II: $k_N = 0.00068\text{ m}$ (Root case)
+    *   Grade III: $k_N = 0.0019\text{ m}$
+
+---
+
+## 3. Directory Map
+The repository structure is organized as follows:
 
 ```directory
 E:\DKS\B_ridgi
 ├── Ks_0.33/                        # Case directory for Grade I (Ks = 0.33 mm)
 │   ├── 0/                          # Boundary and initial conditions (t=0)
-│   ├── constant/                   # Transport & turbulence properties, faMesh
-│   ├── system/                     # blockMeshDict, fvSchemes, fvSolution
+│   ├── constant/                   # Physical constants and mesh properties
+│   ├── system/                     # Solver settings and blockMeshDict
 │   └── Allrun, Allclean            # Automation run/clean scripts
 ├── Ks_1.9/                         # Case directory for Grade III (Ks = 1.90 mm)
 │   ├── 0/, constant/, system/      # Case settings matching Grade III
 │   └── Allrun, Allclean            # Automation run/clean scripts
-├── 0/                              # Case settings for Grade II (Ks = 0.68 mm) - Root Case
-├── constant/                       # Transport & mesh properties for Root Case
-├── system/                         # blockMeshDict, solvers, controlDict for Root Case
-├── Allrun, Allclean                # Automation run/clean scripts for Root Case
-├── plot_comparison.py              # Python utility to parse time steps and plot validation curve
+├── 0/                              # Initial conditions for Grade II (Ks = 0.68 mm) - Root Case
+│   ├── U, p, k, omega, nut         # Fluid fields and boundary conditions
+│   └── Cs, Ws                      # Sediment concentration and settling velocity
+├── constant/                       # Transport properties and mesh for Root Case
+│   ├── transportProperties         # Fluid density and kinematic viscosity definitions
+│   └── polyMesh/                   # Mesh topology files
+├── system/                         # Discretization and solver dictionaries for Root Case
+│   ├── blockMeshDict               # Multi-block meshing for bridge contraction
+│   ├── fvSchemes                   # Discretization schemes
+│   ├── fvSolution                  # Linear solvers and tolerance definitions
+│   └── controlDict                 # Runtime control and output writing
+├── Allrun, Allclean                # Automation run and cleanup bash scripts
+├── plot_comparison.py              # Python utility to plot validation curves
 └── bed_shear_stress_comparison.png # Generated validation comparison plot
 ```
 
-### Key Dictionary Configurations:
-*   **`system/blockMeshDict`**: Generates a structured multi-block mesh spanning $x \in [0.0\text{ m}, 8.0\text{ m}]$ and $y \in [0.0\text{ m}, 0.1\text{ m}]$. The vertical bridge contraction is located at $x \in [1.0\text{ m}, 1.15\text{ m}]$ with a ceiling height of $y = 0.075\text{ m}$ (representing a 25% height constriction).
-*   **`constant/transportProperties`**: Defines fluid properties (density, kinematic viscosity).
-*   **`system/fvSchemes`**: Controls spatial and temporal discretization. Modified to use stable bounded schemes.
-*   **`system/fvSolution`**: Dictates linear solvers (PCG, PBiCGStab), tolerances, and PIMPLE outer loop loops.
+---
+
+## 4. Solver Configuration & Numerical Schemes
+To eliminate high-frequency spatial oscillations (wiggles) near the bed and boundary layer transition zones, the numerical schemes in `system/fvSchemes` and solver settings in `system/fvSolution` were tuned for stability:
+
+### 4.1 Discretization Schemes (`fvSchemes`)
+*   **Time Scheme:** `Euler` (first-order implicit)
+*   **Convection (Velocity):** `Gauss linearUpwind grad(U)` (second-order bounded, accurate for boundary layer gradients)
+*   **Convection (Turbulence):** `Gauss upwind` (first-order bounded for `k` and `omega` equations to prevent numerical wiggles near the bed interface)
+*   **Diffusion/Laplacian:** `Gauss linear corrected` (second-order accurate with non-orthogonal correction)
+
+### 4.2 Linear Solvers & Tolerances (`fvSolution`)
+*   **Pressure Solver:** `GAMG` (Generalized Geometric-Algebraic Multi-Grid) with `DICGaussSeidel` smoother. Tolerance: `1e-7`, relative tolerance: `0.01`.
+*   **Velocity Solver:** `PBiCGStab` with `DILU` preconditioner. Tolerance: `1e-6`, relative tolerance: `0`.
+*   **Turbulence ($k, \omega$):** `PBiCGStab` with `DILU` preconditioner. Tolerance: `1e-6`, relative tolerance: `0`.
+*   **PIMPLE Loops:** 2 outer correctors with 2 non-orthogonal corrector loops.
 
 ---
 
-## 4. Solver Fixes & Stability Tuning Log
-
-This validation campaign resolved two major numerical issues that initially affected the simulation accuracy:
-
-### 4.1 Fuhrman Wall Function Parameter Correction (Overlapping Curves Fix)
-*   **The Issue:** Previously, the bed shear stress profiles for all three roughness grades ($0.33\text{ mm}$, $0.68\text{ mm}$, and $1.90\text{ mm}$) overlapped, outputting identical results.
-*   **The Discovery:** The custom compiled library `libroughWallFunctions.so` uses the Menter-Esch/Fuhrman formulation (`fuhrmanOmegaWallFunction`) for $\omega$. The C++ source code expects the equivalent roughness parameter named **`kn`** (Nikuradse roughness). Because the dictionaries initially provided the standard parameter **`Ks`**, it was ignored, and the wall function silently fell back to its default value of `kn = 1e-6` in all three cases.
-*   **The Fix:** Updated the boundary conditions on the `bed` patch in `0/omega` and `0/omega.b` to supply the correct parameter:
-    ```cpp
-    bed
-    {
-        type            fuhrmanOmegaWallFunction;
-        kn              0.00033; // 0.00068 for Grade II, 0.0019 for Grade III
-        value           uniform 4.153;
-    }
-    ```
-    This successfully activated the roughness boundary shift, leading to the physical separation of the shear stress profiles.
-
-### 4.2 Discretization Scheme Correction (Fluctuations Fix)
-*   **The Issue:** The resolved shear stress profiles showed high-frequency spatial fluctuations (wiggles) along the bed centerline, especially downstream of the contraction block.
-*   **The Discovery:** The convection terms for the turbulent parameters (`k` and `omega`) were using the second-order `linearUpwind` scheme, which triggered localized numerical oscillations near the high-gradient wall boundaries on this fine structured grid.
-*   **The Fix:** Changed the convection schemes of `k` and `omega` in `system/fvSchemes` to the first-order bounded **`Gauss upwind`** scheme:
-    ```cpp
-    div(phi,k)      Gauss upwind;
-    div(phi,omega)  Gauss upwind;
-    ```
-    This completely eliminated the spatial oscillations, resulting in smooth, physically realistic curves.
+## 5. Time Step Control & Runtime Settings
+The runtime and time-step controls defined in `system/controlDict` are configured as follows:
+*   **Adjustable Time Step:** Sourced as `adjustTimeStep true` to adapt to local flow acceleration.
+*   **Courant Number Limit:** Fluid Courant number constraint set to `maxCo 0.5`.
+*   **Maximum Time Step:** `maxDeltaT 0.01 s`.
+*   **Write Interval:** Outputs time folders every `writeInterval 5 s` of simulated time.
+*   **Total Run Duration:** Simulated up to `endTime 40 s` (equivalent to 1.3 flow-throughs) to ensure fully developed, statistically steady-state boundary layer profiles.
 
 ---
 
-## 5. Prerequisites & Environment Setup
-To run the simulations, the following environment is required:
-*   **OpenFOAM v2412** (installed and sourced in your terminal/WSL).
-*   **custom compiled libraries:** `libroughWallFunctions.so` must be present in the user library directory (`$FOAM_USER_LIBBIN`).
-*   **Python 3** with `matplotlib` and `numpy` installed for validation plotting.
+## 6. Execution Guide
 
-Source the OpenFOAM environment in your shell before running:
+To run a simulation case (e.g., the root case):
+
+### 6.1 Run the Automated Script
+The simplest way to execute the full case workflow is by running the `Allrun` script:
 ```bash
-source /usr/lib/openfoam/openfoam2412/etc/bashrc
-```
-
----
-
-## 6. Step-by-Step Execution Guide
-
-To run a simulation case (e.g., Grade I):
-```bash
-# Navigate to case directory
-cd Ks_0.33
-
-# Run the automated execution script
 ./Allrun
 ```
+This script sequentially runs:
+1.  `./Allclean` to clean previous logs and time steps.
+2.  `blockMesh` to generate the multi-block structured mesh.
+3.  `makeFaMesh` to generate the finite-area boundary layer mesh.
+4.  `decomposePar` to decompose the domain for 4 processors.
+5.  `mpirun` to launch `sedExnerFoam` in parallel.
 
-The `./Allrun` script automates the following sequence:
-1.  **Cleanup:** Cleans previous run logs and time steps (`Allclean`).
-2.  **Mesh Generation:** Runs `blockMesh` to generate the 57,000-cell block grid.
-3.  **Finite-Area Mesh:** Runs `makeFaMesh` for boundary zone definitions.
-4.  **Parallel Decomposition:** Decomposes the mesh into 4 processors (`decomposePar`).
-5.  **Parallel Launch:** Executes the solver in parallel:
-    ```bash
-    mpirun -np 4 sedExnerFoam -parallel > log.sedExnerFoam 2>&1 &
-    ```
-
-To reconstruct the final parallel time step folders for post-processing/ParaView:
+### 6.2 Manual Sequential Commands
+If you prefer running the commands step-by-step:
 ```bash
-reconstructPar -time 40
+# 1. Clean previous simulation files
+./Allclean
+
+# 2. Generate structured block grid
+blockMesh
+
+# 3. Generate finite-area mesh for bedload
+makeFaMesh
+
+# 4. Decompose domain for 4 cores
+decomposePar
+
+# 5. Launch the solver in parallel
+mpirun -np 4 sedExnerFoam -parallel > log.sedExnerFoam 2>&1 &
+
+# 6. Monitor run logs
+tail -f log.sedExnerFoam
 ```
 
-To reconstruct all written time steps:
+To reconstruct the parallel time steps after completion:
 ```bash
 reconstructPar
 ```
 
 ---
 
-## 7. Post-Processing & Validation Metrics
-
-The streamwise distribution of the bed shear stress ($\tau_b$) is extracted from the `wallShearStress` vector field:
-$$\tau_b = \rho_f \times |\tau_{w,x}|$$
-*(where OpenFOAM outputs kinematic shear stress $\tau_{w} / \rho_f$, requiring multiplication by density $\rho_f = 1000\text{ kg/m}^3$ to obtain Pascal values).*
-
-A Python script `plot_comparison.py` is included in the root folder. Running this script automatically parses the final time step folder ($t = 40\text{ s}$), extracts the bed centerline profile, and plots the CFD results against the ASCE 2026 experimental points:
-```bash
-python3 plot_comparison.py
-```
-This updates the validation figure **`bed_shear_stress_comparison.png`** in the root directory.
+## 7. Post-Processing & Validation
+*   **Target Fields for Analysis:**
+    *   `U`: Streamwise velocity distribution (acceleration profile in the throat).
+    *   `p_rbgh`: Local pressure drop inside the contraction.
+    *   `wallShearStress`: Bed shear stress vector field (used for the validation curves).
+*   **Function Objects:**
+    *   `wallShearStress1`: Evaluates the wall shear stress on the `bed` patch.
+    *   `yPlus1`: Monitors near-wall grid resolution ($y^+$).
+*   **Plotting Utility:** 
+    Running `python3 plot_comparison.py` extracts the local `wallShearStress` field on the bed patch, computes the bed shear stress value ($\tau_b = \rho_f |\tau_{w,x}|$), and plots it against the ASCE 2026 paper's experimental points.
 
 ---
 
-## 8. Acknowledgements & References
-*   **Original Publication:** Majid et al., "Effect of Bed Roughness on Pressure Flow due to Vertical Contraction", *Journal of Hydraulic Engineering, ASCE*, 2026. DOI: [10.1061/JHEND8.HYENG-14490](https://doi.org/10.1061/JHEND8.HYENG-14490).
-*   **Solver and Library Support:** Development and integration of the custom rough wall functions library is credited to the **LEGI** (Laboratoire des Ecoulements Geophysiques et Industriels) SedFoam research community.
+## 8. Prerequisites & Dependencies
+*   **OpenFOAM v2412** sourced in the environment.
+*   **Custom Wall Function Library:** The `libroughWallFunctions.so` library must be built and placed in the user library bin folder (`$FOAM_USER_LIBBIN`) to enable the `fuhrmanOmegaWallFunction` boundary condition.
+*   **Python 3** with `numpy` and `matplotlib` packages for generating validation comparisons.
