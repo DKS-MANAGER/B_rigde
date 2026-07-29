@@ -44,7 +44,7 @@ Below is the schematic representing the flow domain layout and parameters:
 The workspace is structured into three self-contained OpenFOAM case folders representing each bed roughness grade:
 
 ```directory
-E:\DKS\B_ridgi
+E:\DKS\B_rigde
 ├── Ks_0.33/                        # Case directory for Grade I (Ks = 0.33 mm)
 │   ├── 0/                          # Boundary and initial conditions (t=0)
 │   ├── constant/                   # Physical constants and mesh properties
