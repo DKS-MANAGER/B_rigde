@@ -33,6 +33,11 @@ The exact fluid properties and boundary layer inlet conditions extracted from `c
     *   Grade II: $k_N = 0.00068\text{ m}$ (Root case)
     *   Grade III: $k_N = 0.0019\text{ m}$
 
+### 2.1 Flume Geometry Diagram
+Below is the schematic representing the flow domain layout and parameters:
+
+![2D Flume Geometry Schematic](bridge_scour_geometry.png)
+
 ---
 
 ## 3. Directory Map
@@ -148,6 +153,11 @@ reconstructPar
     *   `yPlus1`: Monitors near-wall grid resolution ($y^+$).
 *   **Plotting Utility:** 
     Running `python3 plot_comparison.py` extracts the local `wallShearStress` field on the bed patch, computes the bed shear stress value ($\tau_b = \rho_f |\tau_{w,x}|$), and plots it against the ASCE 2026 paper's experimental points.
+
+### 7.1 Bed Shear Stress Validation Graph
+Below is the generated comparison plot comparing the three bed roughness cases against the experimental PIV data from Majid et al. (ASCE 2026):
+
+![Bed Shear Stress Comparison Plot](bed_shear_stress_comparison.png)
 
 ---
 
