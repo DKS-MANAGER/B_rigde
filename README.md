@@ -209,6 +209,14 @@ Grade III is the coarsest bed roughness. The higher roughness shifts the velocit
 * **Wall Shear Stress:** ![Grade III Wall](./comparison_grade_III_wall.png)
 * **MRSSM Corrected:** ![Grade III MRSSM](./comparison_grade_III_mrssm.png)
 
+### 7.5 Velocity Contour Comparison
+To analyze the global flow behavior and understand how bed roughness affects the boundary layer development, the streamwise velocity ($U_x$) contour was plotted for all three roughness grades around the bridge contraction block ($x \in [0.5, 2.5]\text{ m}$).
+
+* **Flow Field Analysis:** The contours clearly demonstrate the acceleration of the flow beneath the bridge (the throat region at $x \in [1.0, 1.15]\text{ m}$) as the ceiling constricts the flow area by 25%, causing a significant increase in streamwise velocity.
+* **Roughness Effect:** As bed roughness ($K_s$) increases from Grade I (0.33 mm) to Grade III (1.90 mm), the near-wall velocity is retarded more significantly due to the increased shear resistance. This boundary layer retardation shifts the velocity profiles upward and downstream of the contraction block.
+
+![Velocity Contours](./velocity_contours.png)
+
 ---
 
 ## 8. Prerequisites & Dependencies
