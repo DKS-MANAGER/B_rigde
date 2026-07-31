@@ -121,7 +121,7 @@ for idx, (x_cfd, tau_cfd, exp_x, exp_tau, color, marker, label, limit_y, ax) in 
         ax.scatter(exp_x, exp_tau, color=color, marker=marker, s=30, alpha=0.7, label=f'Exp {label}', zorder=5)
     ax.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region' if idx == 0 else "")
     ax.set_xlim(-0.6, 5.0)
-    ax.set_ylim(0, 7.5) # Extended limit because wall shear stress goes high
+    ax.set_ylim(0, 8.0) # Extended limit because wall shear stress goes high
     ax.set_xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=11, fontweight='bold')
     if idx == 0:
         ax.set_ylabel('Normalized Bed Shear Stress $\\tau_b / \\tau_{o}$', fontsize=11, fontweight='bold')
@@ -144,7 +144,7 @@ def generate_individual_plot(x_cfd, tau_cfd, exp_x, exp_tau, color, marker, labe
         plt.scatter(exp_x, exp_tau, color=color, marker=marker, s=35, alpha=0.7, label=f'Exp {label}', zorder=5)
     plt.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region')
     plt.xlim(-0.6, 5.0)
-    plt.ylim(0, 7.5 if is_wall else 3.5)
+    plt.ylim(0, 8.0 if is_wall else 4.0)
     plt.xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=12, fontweight='bold')
     plt.ylabel('Normalized Bed Shear Stress $\\tau_b / \\tau_{o}$', fontsize=12, fontweight='bold')
     plt.title(title, fontsize=13, fontweight='bold', pad=12)
@@ -194,7 +194,7 @@ for idx, (x_cfd, tau_cfd, exp_x, exp_tau, color, marker, label, limit_y, ax) in 
         ax.scatter(exp_x, exp_tau, color=color, marker=marker, s=30, alpha=0.7, label=f'Exp {label}', zorder=5)
     ax.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region' if idx == 0 else "")
     ax.set_xlim(-0.6, 5.0)
-    ax.set_ylim(0, 3.5)
+    ax.set_ylim(0, 4.0)
     ax.set_xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=11, fontweight='bold')
     if idx == 0:
         ax.set_ylabel('Normalized Bed Shear Stress $\\tau_b / \\tau_{o}$', fontsize=11, fontweight='bold')
@@ -236,7 +236,7 @@ if exp_x_phys_g3:
 plt.axvspan(1.0, 1.15, color='gray', alpha=0.2, label='Bridge Contraction (1.0m - 1.15m)')
 
 plt.xlim(0.8, 2.0)
-plt.ylim(0, 1.8)
+plt.ylim(0, 2.0)
 
 plt.xlabel('Streamwise Distance $x$ (m)', fontsize=12, fontweight='bold')
 plt.ylabel('Bed Shear Stress $\\tau_b$ (Pa)', fontsize=12, fontweight='bold')
