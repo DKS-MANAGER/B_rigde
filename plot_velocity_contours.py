@@ -44,16 +44,13 @@ def load_case_fields(case_dir):
 
 # Case directories
 cases = {
-    "Grade I (Ks = 0.33 mm)": 'E:/B_ridgi/B_ridgi/Ks_0.33',
-    "Grade II (Ks = 0.68 mm)": 'E:/B_ridgi/B_ridgi',
-    "Grade III (Ks = 1.90 mm)": 'E:/B_ridgi/B_ridgi/Ks_1.9'
+    "Grade I (Ks = 0.33 mm)": ('E:/B_ridgi/B_ridgi/Ks_0.33', 'velocity_contour_grade_I.png'),
+    "Grade II (Ks = 0.68 mm)": ('E:/B_ridgi/B_ridgi', 'velocity_contour_grade_II.png'),
+    "Grade III (Ks = 1.90 mm)": ('E:/B_ridgi/B_ridgi/Ks_1.9', 'velocity_contour_grade_III.png')
 }
 
-fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=True, dpi=300)
-
-for idx, (grade, path) in enumerate(cases.items()):
-    ax = axes[idx]
-    print(f"Loading {grade}...")
+for grade, (path, filename) in cases.items():
+    print(f"Loading and plotting {grade}...")
     C, U = load_case_fields(path)
     
     x = C[:, 0]
@@ -66,6 +63,9 @@ for idx, (grade, path) in enumerate(cases.items()):
     y_f = y[mask]
     ux_f = ux[mask]
     
+    plt.figure(figsize=(10, 4), dpi=300)
+    ax = plt.gca()
+    
     # Tricontourf to plot the unstructured mesh data
     cntr = ax.tricontourf(x_f, y_f, ux_f, levels=100, cmap='jet')
     
@@ -76,20 +76,20 @@ for idx, (grade, path) in enumerate(cases.items()):
     # Text label for the block
     ax.text(1.075, 0.0825, "Bridge", color='white', weight='bold', fontsize=8, ha='center', va='center', zorder=11)
     
-    ax.set_title(grade, fontsize=12, fontweight='bold')
-    ax.set_ylabel('y (m)', fontsize=10, fontweight='bold')
-    ax.set_xlim(0.5, 2.5)
-    ax.set_ylim(0.0, 0.10)
-    ax.grid(True, linestyle='--', alpha=0.5)
+    plt.title(f"Streamwise Velocity ($U_x$) Contour: {grade}", fontsize=13, fontweight='bold', pad=10)
+    plt.xlabel('x (m)', fontsize=10, fontweight='bold')
+    plt.ylabel('y (m)', fontsize=10, fontweight='bold')
+    plt.xlim(0.5, 2.5)
+    plt.ylim(0.0, 0.10)
+    plt.grid(True, linestyle='--', alpha=0.5)
     
-    # Add colorbar for each plot
-    cbar = fig.colorbar(cntr, ax=ax, orientation='vertical', pad=0.01)
+    # Add colorbar
+    cbar = plt.colorbar(cntr, ax=ax, orientation='vertical', pad=0.01)
     cbar.set_label('$U_x$ (m/s)', fontsize=9)
     cbar.ax.tick_params(labelsize=8)
-
-axes[2].set_xlabel('x (m)', fontsize=10, fontweight='bold')
-plt.suptitle('Streamwise Velocity ($U_x$) Contour Comparison', fontsize=16, fontweight='bold', y=0.98)
-plt.tight_layout()
-output_img = 'E:/B_ridgi/B_ridgi/velocity_contours.png'
-plt.savefig(output_img, dpi=300)
-print(f"Saved velocity contour comparison to {output_img}")
+    
+    plt.tight_layout()
+    output_img = f'E:/B_ridgi/B_ridgi/{filename}'
+    plt.savefig(output_img, dpi=300)
+    plt.close()
+    print(f"Saved {grade} contour to {output_img}")
