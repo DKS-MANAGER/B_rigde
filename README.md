@@ -167,6 +167,14 @@ reconstructPar
 ### 7.1 Experimental Data Extraction
 The experimental validation data (Fig. 9d from Majid et al., 2026) corresponding to the bridge dimensions ($L/H_a = 1.5, H/H_a = 0.25$) was extracted directly from the publication PDF. An automated Python workflow isolated the specific subplot, and the data markers representing the three roughness grades (Ks = 0.33, 0.68, and 1.90 mm) were digitized and converted into physical scale values for direct comparison.
 
+To facilitate downstream analysis and maintain a clean record, the extracted data points are compiled and saved in the repository as [validation_data.csv](./validation_data.csv). The dataset contains 138 entries with the following columns:
+*   `grade`: The roughness grade classification (Grade I, II, or III).
+*   `roughness_mm`: Equivalent sand-grain roughness height $K_s$ in millimeters.
+*   `x_m`: Streamwise coordinate $x$ in meters.
+*   `x_over_Ha`: Normalized streamwise distance $x/H_a$.
+*   `tau_b_over_tau_o`: Normalized bed shear stress ratio $\tau_b / \tau_o$.
+*   `tau_b_Pa`: Absolute bed shear stress $\tau_b$ in Pascals.
+
 ### 7.2 Methodological Discrepancy (Wall vs. PIV)
 Initially, a direct comparison between the CFD-computed `wallShearStress` and the experimental data showed a significant mismatch in peak shear stress within the contraction zone. 
 *   **The Cause:** This discrepancy arises from a fundamental methodological bias. OpenFOAM computes `wallShearStress` directly at the wall ($y=0$) using standard wall functions, capturing the absolute maximum stress. In contrast, the experimental PIV setup evaluates bed shear stress using the **Maximum Reynolds Shear Stress Method (MRSSM)**, measured within an interrogation window positioned at a specific height above the bed (approximately $y \approx 3.7\text{ mm}$).
