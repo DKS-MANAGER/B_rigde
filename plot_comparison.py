@@ -79,15 +79,23 @@ try:
         exp_data = json.load(f)
     exp_x_g1 = [p["x_val"] for p in exp_data["Grade I (Green)"]]
     exp_tau_g1 = [p["y_val"] for p in exp_data["Grade I (Green)"]]
+    exp_x_phys_g1 = [p["x_phys"] for p in exp_data["Grade I (Green)"]]
+    exp_tau_abs_g1 = [p["tau_b"] for p in exp_data["Grade I (Green)"]]
+    
     exp_x_g2 = [p["x_val"] for p in exp_data["Grade II (Blue)"]]
     exp_tau_g2 = [p["y_val"] for p in exp_data["Grade II (Blue)"]]
+    exp_x_phys_g2 = [p["x_phys"] for p in exp_data["Grade II (Blue)"]]
+    exp_tau_abs_g2 = [p["tau_b"] for p in exp_data["Grade II (Blue)"]]
+    
     exp_x_g3 = [p["x_val"] for p in exp_data["Grade III (Red)"]]
     exp_tau_g3 = [p["y_val"] for p in exp_data["Grade III (Red)"]]
+    exp_x_phys_g3 = [p["x_phys"] for p in exp_data["Grade III (Red)"]]
+    exp_tau_abs_g3 = [p["tau_b"] for p in exp_data["Grade III (Red)"]]
 except Exception as e:
     print(f"Failed to load Experimental markers: {e}")
-    exp_x_g1, exp_tau_g1 = [], []
-    exp_x_g2, exp_tau_g2 = [], []
-    exp_x_g3, exp_tau_g3 = [], []
+    exp_x_g1, exp_tau_g1, exp_x_phys_g1, exp_tau_abs_g1 = [], [], [], []
+    exp_x_g2, exp_tau_g2, exp_x_phys_g2, exp_tau_abs_g2 = [], [], [], []
+    exp_x_g3, exp_tau_g3, exp_x_phys_g3, exp_tau_abs_g3 = [], [], [], []
 
 # =========================================================================
 # PART 1: Direct Wall Shear Stress Plots
@@ -201,5 +209,45 @@ plt.savefig('E:/B_ridgi/B_ridgi/bed_shear_stress_comparison_subplots_mrssm.png',
 generate_individual_plot(x_mrs_g1, tau_mrs_g1, exp_x_g1, exp_tau_g1, 'green', '^', 'Grade I ($K_s = 0.33\text{ mm}$)', 'Normalized Bed Shear Stress: Grade I (MRSSM at y=3.7mm)', 'comparison_grade_I_mrssm.png', tau_o_vals["Grade I"], is_wall=False)
 generate_individual_plot(x_mrs_g2, tau_mrs_g2, exp_x_g2, exp_tau_g2, 'blue', 'o', 'Grade II ($K_s = 0.68\text{ mm}$)', 'Normalized Bed Shear Stress: Grade II (MRSSM at y=3.7mm)', 'comparison_grade_II_mrssm.png', tau_o_vals["Grade II"], is_wall=False)
 generate_individual_plot(x_mrs_g3, tau_mrs_g3, exp_x_g3, exp_tau_g3, 'red', 's', 'Grade III ($K_s = 1.90\text{ mm}$)', 'Normalized Bed Shear Stress: Grade III (MRSSM at y=3.7mm)', 'comparison_grade_III_mrssm.png', tau_o_vals["Grade III"], is_wall=False)
+
+# =========================================================================
+# PART 3: Absolute Bed Shear Stress Comparison Plot
+# =========================================================================
+print("\n--- Generating Absolute Bed Shear Stress Comparison Plot (bed_shear_stress_comparison.png) ---")
+plt.figure(figsize=(10, 5), dpi=300)
+
+# Plot CFD curves (direct wall shear stress)
+if x_wall_g1 is not None:
+    plt.plot(x_wall_g1, tau_wall_g1, color='green', linestyle='-', linewidth=2, label=r'CFD Grade I ($K_s = 0.33\text{ mm}$)')
+if x_wall_g2 is not None:
+    plt.plot(x_wall_g2, tau_wall_g2, color='blue', linestyle='-', linewidth=2, label=r'CFD Grade II ($K_s = 0.68\text{ mm}$)')
+if x_wall_g3 is not None:
+    plt.plot(x_wall_g3, tau_wall_g3, color='red', linestyle='-', linewidth=2, label=r'CFD Grade III ($K_s = 1.90\text{ mm}$)')
+
+# Plot Experimental points
+if exp_x_phys_g1:
+    plt.scatter(exp_x_phys_g1, exp_tau_abs_g1, color='green', marker='^', s=40, alpha=0.8, label='Exp Grade I (Majid et al. 2026)', zorder=5)
+if exp_x_phys_g2:
+    plt.scatter(exp_x_phys_g2, exp_tau_abs_g2, color='blue', marker='o', s=40, alpha=0.8, label='Exp Grade II (Majid et al. 2026)', zorder=5)
+if exp_x_phys_g3:
+    plt.scatter(exp_x_phys_g3, exp_tau_abs_g3, color='red', marker='s', s=40, alpha=0.8, label='Exp Grade III (Majid et al. 2026)', zorder=5)
+
+# Highlight Bridge Contraction Region (x = 1.0 m to 1.15 m)
+plt.axvspan(1.0, 1.15, color='gray', alpha=0.2, label='Bridge Contraction (1.0m - 1.15m)')
+
+plt.xlim(0.8, 2.0)
+plt.ylim(0, 1.8)
+
+plt.xlabel('Streamwise Distance $x$ (m)', fontsize=12, fontweight='bold')
+plt.ylabel('Bed Shear Stress $\\tau_b$ (Pa)', fontsize=12, fontweight='bold')
+plt.title('Absolute Bed Shear Stress Comparison (Direct Wall vs Exp)', fontsize=13, fontweight='bold', pad=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend(loc='upper right', frameon=True, facecolor='white', framealpha=0.9, fontsize=9)
+plt.tight_layout()
+
+output_abs_plot = 'E:/B_ridgi/B_ridgi/bed_shear_stress_comparison.png'
+plt.savefig(output_abs_plot, dpi=300)
+plt.close()
+print(f"Absolute validation plot successfully saved to {output_abs_plot}")
 
 print("All plots successfully generated!")
