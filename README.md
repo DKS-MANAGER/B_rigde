@@ -66,7 +66,8 @@ E:\DKS\B_rigde
 │   └── controlDict                 # Runtime control and output writing
 ├── Allrun, Allclean                # Automation run and cleanup bash scripts
 ├── plot_comparison.py              # Python utility to plot validation curves
-└── bed_shear_stress_comparison.png # Generated validation comparison plot
+├── bed_shear_stress_comparison_subplots_wall.png  # Subplots for direct wall shear stress
+└── bed_shear_stress_comparison_subplots_mrssm.png # Subplots for MRSSM shear stress
 ```
 
 ### Key Dictionary Configurations:
