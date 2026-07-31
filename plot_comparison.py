@@ -112,7 +112,7 @@ for idx, (x_cfd, tau_cfd, exp_x, exp_tau, color, marker, label, limit_y, ax) in 
     if exp_x:
         ax.scatter(exp_x, exp_tau, color=color, marker=marker, s=30, alpha=0.7, label=f'Exp {label}', zorder=5)
     ax.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region' if idx == 0 else "")
-    ax.set_xlim(0, 5.0)
+    ax.set_xlim(-0.6, 5.0)
     ax.set_ylim(0, 7.5) # Extended limit because wall shear stress goes high
     ax.set_xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=11, fontweight='bold')
     if idx == 0:
@@ -135,7 +135,7 @@ def generate_individual_plot(x_cfd, tau_cfd, exp_x, exp_tau, color, marker, labe
     if exp_x:
         plt.scatter(exp_x, exp_tau, color=color, marker=marker, s=35, alpha=0.7, label=f'Exp {label}', zorder=5)
     plt.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region')
-    plt.xlim(0, 5.0)
+    plt.xlim(-0.6, 5.0)
     plt.ylim(0, 7.5 if is_wall else 3.5)
     plt.xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=12, fontweight='bold')
     plt.ylabel('Normalized Bed Shear Stress $\\tau_b / \\tau_{o}$', fontsize=12, fontweight='bold')
@@ -185,7 +185,7 @@ for idx, (x_cfd, tau_cfd, exp_x, exp_tau, color, marker, label, limit_y, ax) in 
     if exp_x:
         ax.scatter(exp_x, exp_tau, color=color, marker=marker, s=30, alpha=0.7, label=f'Exp {label}', zorder=5)
     ax.axvspan(0.0, 1.5, color='gray', alpha=0.2, label='Contraction Region' if idx == 0 else "")
-    ax.set_xlim(0, 5.0)
+    ax.set_xlim(-0.6, 5.0)
     ax.set_ylim(0, 3.5)
     ax.set_xlabel('Normalized Streamwise Distance $(x - x_0)/H_a$', fontsize=11, fontweight='bold')
     if idx == 0:
