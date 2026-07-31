@@ -67,7 +67,8 @@ E:\DKS\B_rigde
 ├── Allrun, Allclean                # Automation run and cleanup bash scripts
 ├── plot_comparison.py              # Python utility to plot validation curves
 ├── bed_shear_stress_comparison_subplots_wall.png  # Subplots for direct wall shear stress
-└── bed_shear_stress_comparison_subplots_mrssm.png # Subplots for MRSSM shear stress
+├── bed_shear_stress_comparison_subplots_mrssm.png # Subplots for MRSSM shear stress
+└── bed_shear_stress_comparison.png # Generated absolute validation comparison plot
 ```
 
 ### Key Dictionary Configurations:
