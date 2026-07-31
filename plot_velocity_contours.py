@@ -2,6 +2,7 @@ import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.tri as tri
 
 def parse_vector_field(filepath):
     with open(filepath, 'r') as f:
@@ -42,7 +43,12 @@ def load_case_fields(case_dir):
     U = parse_vector_field(u_path)
     return C, U
 
-# Case directories
+# Hydraulic constants
+Ha = 0.10       # Approach depth (m)
+H = 0.025       # Contraction block height (m)
+Va = 0.26       # Approach velocity (m/s)
+
+# Case directories and outputs
 cases = {
     "Grade I (Ks = 0.33 mm)": ('E:/B_ridgi/B_ridgi/Ks_0.33', 'velocity_contour_grade_I.png'),
     "Grade II (Ks = 0.68 mm)": ('E:/B_ridgi/B_ridgi', 'velocity_contour_grade_II.png'),
@@ -50,46 +56,76 @@ cases = {
 }
 
 for grade, (path, filename) in cases.items():
-    print(f"Loading and plotting {grade}...")
+    print(f"Plotting styled contour for {grade}...")
     C, U = load_case_fields(path)
     
+    # Extract x and y coordinates, and Ux velocity
     x = C[:, 0]
     y = C[:, 1]
     ux = U[:, 0]
     
-    # Filter points around the bridge contraction to make the contour focused
-    mask = (x >= 0.5) & (x <= 2.5)
-    x_f = x[mask]
-    y_f = y[mask]
-    ux_f = ux[mask]
+    # Normalize coordinates
+    x_norm = (x - 1.0) / Ha
+    y_norm = y / H
+    ux_norm = ux / Va
     
-    plt.figure(figsize=(10, 4), dpi=300)
-    ax = plt.gca()
+    # Filter data to the plot region x_norm in [-0.5, 5.0]
+    mask = (x_norm >= -0.5) & (x_norm <= 5.0)
+    x_f = x_norm[mask]
+    y_f = y_norm[mask]
+    ux_f = ux_norm[mask]
     
-    # Tricontourf to plot the unstructured mesh data
-    cntr = ax.tricontourf(x_f, y_f, ux_f, levels=100, cmap='jet')
+    # Create triangulation for plotting
+    triang = tri.Triangulation(x_f, y_f)
     
-    # Add a grey rectangle representing the solid bridge block
-    rect = plt.Rectangle((1.0, 0.075), 0.15, 0.025, facecolor='darkgray', edgecolor='black', hatch='//', zorder=10)
-    ax.add_patch(rect)
+    # Set up the figure
+    fig, ax = plt.subplots(figsize=(10, 4), dpi=300)
     
-    # Text label for the block
-    ax.text(1.075, 0.0825, "Bridge", color='white', weight='bold', fontsize=8, ha='center', va='center', zorder=11)
+    # Plot filled contours (velocity field)
+    # Use levels from -0.3 to 1.7 to match the reference colorbar
+    levels = np.linspace(-0.3, 1.7, 101)
+    cntr_f = ax.tricontourf(triang, ux_f, levels=levels, cmap='jet', extend='both')
     
-    plt.title(f"Streamwise Velocity ($U_x$) Contour: {grade}", fontsize=13, fontweight='bold', pad=10)
-    plt.xlabel('x (m)', fontsize=10, fontweight='bold')
-    plt.ylabel('y (m)', fontsize=10, fontweight='bold')
-    plt.xlim(0.5, 2.5)
-    plt.ylim(0.0, 0.10)
-    plt.grid(True, linestyle='--', alpha=0.5)
+    # Plot line contours (isolines) with custom steps
+    line_levels = [-0.3, -0.1, 0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7]
+    cntr_l = ax.tricontour(triang, ux_f, levels=line_levels, colors='gray', linewidths=0.5)
+    
+    # Add inline labels on the contour lines
+    ax.clabel(cntr_l, inline=True, fontsize=8, fmt='%.1f', colors='black')
+    
+    # Draw top boundary/ceiling as grey rectangles (where there is no bridge block)
+    # The bridge block itself spans x_norm in [0, 1.5] and y_norm in [3, 4]
+    # Ceiling upstream: x_norm in [-0.5, 0], y_norm in [3, 4]
+    # Ceiling downstream: x_norm in [1.5, 5.0], y_norm in [3, 4]
+    ceil_upstream = plt.Rectangle((-0.5, 3.0), 0.5, 1.0, facecolor='grey', edgecolor='none', zorder=8)
+    ceil_downstream = plt.Rectangle((1.5, 3.0), 3.5, 1.0, facecolor='grey', edgecolor='none', zorder=8)
+    ax.add_patch(ceil_upstream)
+    ax.add_patch(ceil_downstream)
+    
+    # Draw the solid bridge block as a black rectangle
+    bridge_block = plt.Rectangle((0.0, 3.0), 1.5, 1.0, facecolor='black', edgecolor='black', zorder=10)
+    ax.add_patch(bridge_block)
+    
+    # Add labels and formatting
+    ax.set_xlabel('$x / H_a$', fontsize=11, fontweight='bold')
+    ax.set_ylabel('$y / H$', fontsize=11, fontweight='bold')
+    ax.set_xlim(-0.5, 5.0)
+    ax.set_ylim(0.0, 4.0)
+    
+    # Add minor/major ticks to match style
+    ax.set_xticks(np.arange(-0.5, 5.1, 0.5))
+    ax.set_yticks(np.arange(0, 5, 1))
+    ax.tick_params(direction='in', top=True, right=True)
     
     # Add colorbar
-    cbar = plt.colorbar(cntr, ax=ax, orientation='vertical', pad=0.01)
-    cbar.set_label('$U_x$ (m/s)', fontsize=9)
-    cbar.ax.tick_params(labelsize=8)
+    cbar = fig.colorbar(cntr_f, ax=ax, ticks=[-0.3, 0.1, 0.5, 0.9, 1.3, 1.7], pad=0.015, aspect=15)
+    cbar.set_label('$\overline{u}/V$', fontsize=11, fontweight='bold')
+    cbar.ax.tick_params(labelsize=9)
     
+    plt.title(f"Streamwise Velocity Contour - {grade}", fontsize=12, fontweight='bold', pad=10)
     plt.tight_layout()
-    output_img = f'E:/B_ridgi/B_ridgi/{filename}'
-    plt.savefig(output_img, dpi=300)
+    
+    output_path = f'E:/B_ridgi/B_ridgi/{filename}'
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    print(f"Saved {grade} contour to {output_img}")
+    print(f"Successfully saved styled contour to {output_path}")
