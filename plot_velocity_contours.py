@@ -93,16 +93,8 @@ for grade, (path, filename) in cases.items():
     # Add inline labels on the contour lines
     ax.clabel(cntr_l, inline=True, fontsize=8, fmt='%.1f', colors='black')
     
-    # Draw top boundary/ceiling as grey rectangles (where there is no bridge block)
-    # The bridge block itself spans x_norm in [0, 1.5] and y_norm in [3, 4]
-    # Ceiling upstream: x_norm in [-0.5, 0], y_norm in [3, 4]
-    # Ceiling downstream: x_norm in [1.5, 5.0], y_norm in [3, 4]
-    ceil_upstream = plt.Rectangle((-0.5, 3.0), 0.5, 1.0, facecolor='grey', edgecolor='none', zorder=8)
-    ceil_downstream = plt.Rectangle((1.5, 3.0), 3.5, 1.0, facecolor='grey', edgecolor='none', zorder=8)
-    ax.add_patch(ceil_upstream)
-    ax.add_patch(ceil_downstream)
-    
     # Draw the solid bridge block as a black rectangle
+    # The bridge block spans x_norm in [0.0, 1.5] (x in [1.0m, 1.15m]) and y_norm in [3.0, 4.0] (y in [0.075m, 0.100m])
     bridge_block = plt.Rectangle((0.0, 3.0), 1.5, 1.0, facecolor='black', edgecolor='black', zorder=10)
     ax.add_patch(bridge_block)
     
